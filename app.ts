@@ -1,1 +1,5 @@
-console.log(11)
+function getEditorRange() {
+  console.log(getSelection().rangeCount)
+}
+
+getEditorRange()
