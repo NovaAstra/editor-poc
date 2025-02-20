@@ -10,17 +10,30 @@
 </head>
 
 <body>
-  <pre id="sphere-docx" contenteditable="true" spellcheck="false"></pre>
+  <div class="root">
+    <div id="docx"></div>
+  </div>
 
   <style>
-    #sphere-docx{
-      padding: 10px 35px;
-      outline: none;
-      white-space: pre-wrap;
+    * {
       margin: 0;
-      font-size: 14px;
-      background-color: #fafbfc;
-      height: 600px;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #eeefef;
+      counter-reset: section;
+      color: rgb(0, 0, 0);
+    }
+
+    .root {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   </style>
 </body>

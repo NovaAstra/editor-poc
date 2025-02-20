@@ -115,3 +115,5 @@ dist-storybook/
 # Heft temporary files
 .cache/
 .heft/
+
+.parcel-cache
