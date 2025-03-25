@@ -1,4 +1,4 @@
 import { ellipsis } from "./ellipsis"
 
 
-ellipsis(document.getElementById('ellipsis'))
+ellipsis(document.getElementById('ellipsis')).html()
