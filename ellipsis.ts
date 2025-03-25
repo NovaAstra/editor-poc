@@ -73,12 +73,35 @@ export class Ellipsis {
     const height = getMaxHeight(this.root, clampValue)
     if (getElemHeight(this.root) <= height) return new EllipsisResponse(false)
 
-    const truncated = this.node();
+    this.range.setStart(this.root, 0);
+
+    const truncated = this.node(this.root, height);
 
     return new EllipsisResponse(truncated, this.outerhtml);
   }
 
-  public node(): boolean {
+  public node(element: Element, height: number): boolean {
+    const nodes = element.childNodes
+
+    let low = 0;
+    let high = nodes.length;
+
+    while (low < high) {
+      let middle = Math.floor((low + high) / 2);
+
+      this.range.setEnd(this.root, middle)
+
+      if (this.range.getBoundingClientRect().height <= height) {
+        low = middle + 1;
+      } else {
+        high = middle
+      }
+    }
+
+    const fragment = this.range.cloneContents();
+    console.log(fragment); // 获取范围内的所有节点
+    console.log(high, nodes)
+
     return false
   }
 
