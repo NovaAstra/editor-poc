@@ -81,31 +81,53 @@ export class Ellipsis {
   }
 
   public node(element: Element, height: number): boolean {
-    const nodes = element.childNodes
+    if (!element || element.nodeType === Node.COMMENT_NODE) return false
 
-    let low = 0;
-    let high = nodes.length;
+    if (element.nodeType === Node.TEXT_NODE) {
 
-    while (low < high) {
-      let middle = Math.floor((low + high) / 2);
-
-      this.range.setEnd(this.root, middle)
-
-      if (this.range.getBoundingClientRect().height <= height) {
-        low = middle + 1;
-      } else {
-        high = middle
-      }
     }
 
-    const fragment = this.range.cloneContents();
-    console.log(fragment); // 获取范围内的所有节点
-    console.log(high, nodes)
+    if (element.nodeType === Node.ELEMENT_NODE) {
+      const last = this.move(element, height);
+
+      if (last >= 0) {
+
+      }
+
+      return last >= 0
+    }
 
     return false
   }
 
   public text() { }
+
+  private move(element: Element, height: number) {
+    const nodes = element.childNodes
+    if (nodes.length === 0) return -1;
+
+    const deviation = 0;
+
+    let position = -1
+    let low = 0;
+    let high = nodes.length - 1;
+
+    while (low < high) {
+      let middle = Math.floor((low + high) / 2);
+
+      this.range.setEnd(element, middle)
+      const h = this.range.getBoundingClientRect().height;
+
+      if (h <= height + deviation) {
+        position = middle
+        low = middle + 1;
+      } else {
+        high = middle - 1
+      }
+    }
+
+    return position;
+  }
 }
 
 export const ellipsis = (root: Element) => Ellipsis.ellipsis(root)
