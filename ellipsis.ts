@@ -3,6 +3,11 @@ import { getMaxLines, getMaxHeight, getElemHeight } from "./element"
 export type Px = `${number}px`
 export type Line = number
 
+export type ArrayLike<T> = {
+  length: number;
+  [n: number]: T;
+}
+
 export interface Options {
   clamp: 'auto' | Line | Px;
 }
@@ -39,14 +44,13 @@ export class Ellipsis {
   public static getClampValue(element: Element, clamp: 'auto' | Line | Px) {
     if (typeof clamp === 'number') return clamp;
 
-    const isCSSValue = clamp.indexOf && clamp.indexOf("px") > -1;
+    const isCSSValue = typeof clamp === 'string' && clamp.indexOf("px") > -1;
     if (isCSSValue) return getMaxLines(element, parseFloat(clamp))
 
     return getMaxLines(element)
   }
 
   private readonly range: Range = document.createRange();
-
   private readonly options: EllipsisOptions
 
   private get outerhtml() {
@@ -75,58 +79,70 @@ export class Ellipsis {
 
     this.range.setStart(this.root, 0);
 
-    const truncated = this.node(this.root, height);
+    const position = this.truncated(this.root, height);
 
-    return new EllipsisResponse(truncated, this.outerhtml);
+    return new EllipsisResponse(false, this.outerhtml);
   }
 
-  public node(element: Element, height: number): boolean {
-    if (!element || element.nodeType === Node.COMMENT_NODE) return false
+  private truncated(element: Element, height: number) {
+    if (!element || element.nodeType === Node.COMMENT_NODE) return false;
 
-    if (element.nodeType === Node.TEXT_NODE) {
-
+    switch (element.nodeType) {
+      case Node.TEXT_NODE:
+        return this.text(element as unknown as Text, height)
+      case Node.ELEMENT_NODE:
+        return this.node(element, height)
+      default:
+        return false
     }
-
-    if (element.nodeType === Node.ELEMENT_NODE) {
-      const last = this.move(element, height);
-
-      if (last >= 0) {
-
-      }
-
-      return last >= 0
-    }
-
-    return false
   }
 
-  public text() { }
+  protected node(element: Element, height: number): boolean {
+    const nodes = element.childNodes;
 
-  private move(element: Element, height: number) {
-    const nodes = element.childNodes
-    if (nodes.length === 0) return -1;
+    const position = this.move(nodes, height, element);
+    if (position >= 0) {
+      const lastNode = nodes[position] as Element;
+      return this.truncated(lastNode, height);
+    }
 
-    const deviation = 0;
+    return position >= 0
+  }
 
-    let position = -1
+  protected text(node: Text, height: number) {
+    const text = node.nodeValue || '';
+    if (!text) return false;
+
+    let position = this.move(text, height, node);
+    this.range.setEnd(node, position - 1)
+
+    document.getElementById('ellipsis').appendChild(this.range.cloneContents())
+    return position >= 0
+  }
+
+  private move<T>(elements: ArrayLike<T>, height: number, node: Node | Text, deviation: number = 2) {
+    if (elements.length === 0) return -1;
+
+    this.range.setEndAfter(node)
+    if (this.range.getBoundingClientRect().height <= height - deviation) return elements.length - 1;
+
     let low = 0;
-    let high = nodes.length - 1;
+    let high = elements.length - 1;
 
-    while (low < high) {
-      let middle = Math.floor((low + high) / 2);
+    while (low <= high) {
+      let middle = low + ((high - low) >> 1);
 
-      this.range.setEnd(element, middle)
+      this.range.setEnd(node, middle)
       const h = this.range.getBoundingClientRect().height;
 
-      if (h <= height + deviation) {
-        position = middle
+      if (h <= height - deviation) {
         low = middle + 1;
       } else {
         high = middle - 1
       }
     }
 
-    return position;
+    return high;
   }
 }
 
