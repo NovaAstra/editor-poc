@@ -114,9 +114,11 @@ export class Ellipsis {
     if (!text) return false;
 
     let position = this.move(text, height, node);
-    this.range.setEnd(node, position - 1)
-
+    this.range.setEnd(node, Math.max(position - 1, 0))
     document.getElementById('ellipsis').appendChild(this.range.cloneContents())
+
+    const selection = window.getSelection();
+    selection.addRange(this.range);
     return position >= 0
   }
 

@@ -4,11 +4,23 @@ export const getElemHeight = (element: Element) =>
   Math.max(element.scrollHeight, element.clientHeight)
 
 export const computeStyle = (element: Element, prop: string) =>
-  _global.getComputedStyle(element).getPropertyValue(prop)
+  _global.getComputedStyle(element)[prop]
 
 export const getFontSize = (element: Element) => parseFloat(computeStyle(element, "font-size"))
 
-export const getStyleHeight = (element: Element) => parseFloat(computeStyle(element, "height"))
+export const getContentHeight = (element: Element) => {
+  const boxSizing = computeStyle(element, 'boxSizing');
+
+  if (boxSizing === 'border-box') {
+    const borderTop = parseFloat(computeStyle(element, "borderTopWidth")) || 0;
+    const borderBottom = parseFloat(computeStyle(element, "borderBottomWidth")) || 0;
+    const paddingTop = parseFloat(computeStyle(element, "paddingTop")) || 0;
+    const paddingBottom = parseFloat(computeStyle(element, "paddingBottom")) || 0;
+    return element.clientHeight - borderTop - borderBottom - paddingTop - paddingBottom;
+  }
+
+  return parseFloat(computeStyle(element, "height")) || element.clientHeight;
+}
 
 export const getLineHeight = (element: Element) => {
   let lh: any = computeStyle(element, "line-height");
@@ -25,5 +37,6 @@ export const getMaxLines = (element: Element, height?: number) => {
   return Math.max(Math.floor(availHeight / lineHeight), 0)
 }
 
-export const getMaxHeight = (element: Element, clamp: number) =>
-  Math.max(getLineHeight(element) * clamp, getStyleHeight(element), 0)
+export const getMaxHeight = (element: Element, clamp: number) => {
+  return Math.min(getLineHeight(element) * clamp, getContentHeight(element))
+}
