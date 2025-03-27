@@ -15,7 +15,6 @@ export const numeric = (input: unknown) => parseFloat(input as string) || 0
 export const numericStyle = (element: Element, prop: keyof CSSStyleDeclaration): number =>
   numeric(computeStyle(element, prop))
 
-
 export const getContentHeight = (element: Element) => {
   const computedStyle = _global.getComputedStyle(element)
   const boxSizing = computedStyle["boxSizing"];
@@ -49,3 +48,11 @@ export const getMaxLines = (element: Element, height?: number) => {
 
 export const getMaxHeight = (element: Element, clamp: number) =>
   Math.min(getLineHeight(element) * clamp, getContentHeight(element))
+
+export const getContentBottom = (element: Element) => {
+  const { bottom } = element.getBoundingClientRect()
+  const computedStyle = _global.getComputedStyle(element)
+  return bottom
+    - numeric(computedStyle['borderBottomWidth'])
+    - numeric(computedStyle['paddingBottom'])
+}
