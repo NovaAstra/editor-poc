@@ -1,32 +1,41 @@
 import { _global } from "./global"
 
+const DEFAULT_LINE_HEIGHT_MULTIPLIER = 1.2;
+
 export const getElemHeight = (element: Element) =>
   Math.max(element.scrollHeight, element.clientHeight)
 
-export const computeStyle = (element: Element, prop: string) =>
-  _global.getComputedStyle(element)[prop]
+export const computeStyle = (element: Element, prop: keyof CSSStyleDeclaration) =>
+  _global.getComputedStyle(element)[prop] as string
 
-export const getFontSize = (element: Element) => parseFloat(computeStyle(element, "font-size"))
+export const getFontSize = (element: Element) => numericStyle(element, "fontSize")
+
+export const numeric = (input: unknown) => parseFloat(input as string) || 0
+
+export const numericStyle = (element: Element, prop: keyof CSSStyleDeclaration): number =>
+  numeric(computeStyle(element, prop))
+
 
 export const getContentHeight = (element: Element) => {
-  const boxSizing = computeStyle(element, 'boxSizing');
+  const computedStyle = _global.getComputedStyle(element)
+  const boxSizing = computedStyle["boxSizing"];
 
   if (boxSizing === 'border-box') {
-    const borderTop = parseFloat(computeStyle(element, "borderTopWidth")) || 0;
-    const borderBottom = parseFloat(computeStyle(element, "borderBottomWidth")) || 0;
-    const paddingTop = parseFloat(computeStyle(element, "paddingTop")) || 0;
-    const paddingBottom = parseFloat(computeStyle(element, "paddingBottom")) || 0;
-    return element.clientHeight - borderTop - borderBottom - paddingTop - paddingBottom;
+    return element.clientHeight
+      - numeric(computedStyle['borderTopWidth'])
+      - numeric(computedStyle['borderBottomWidth'])
+      - numeric(computedStyle['paddingTop'])
+      - numeric(computedStyle['paddingBottom']);
   }
 
-  return parseFloat(computeStyle(element, "height")) || element.clientHeight;
+  return numeric(computedStyle['height']) || element.clientHeight;
 }
 
 export const getLineHeight = (element: Element) => {
-  let lh: any = computeStyle(element, "line-height");
+  let lh: any = computeStyle(element, "lineHeight");
 
   return lh === "normal"
-    ? parseFloat(computeStyle(element, "font-size")) * 1.2
+    ? numericStyle(element, "fontSize") * DEFAULT_LINE_HEIGHT_MULTIPLIER
     : parseFloat(lh)
 }
 

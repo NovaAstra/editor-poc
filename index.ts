@@ -1,4 +1,6 @@
 import { ellipsis } from "./ellipsis"
 
 
-ellipsis(document.querySelector('.ellipsis')).html()
+setTimeout(() => {
+  ellipsis(document.querySelector('.ellipsis')).html()
+}, 500)

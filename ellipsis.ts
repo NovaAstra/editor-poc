@@ -16,6 +16,8 @@ const DEFAULT_OPTIONS: Partial<Options> = {
   clamp: 'auto'
 }
 
+
+
 export class EllipsisOptions implements Options {
   public clamp: 'auto' | Line | Px;
 
@@ -53,8 +55,12 @@ export class Ellipsis {
   private readonly range: Range = document.createRange();
   private readonly options: EllipsisOptions
 
-  private get outerhtml() {
+  private get outerHTML(): string {
     return this.root.outerHTML
+  }
+
+  private get clientRect(): DOMRect {
+    return this.root.getBoundingClientRect()
   }
 
   public constructor(
@@ -79,9 +85,9 @@ export class Ellipsis {
 
     this.range.setStart(this.root, 0);
 
-    const position = this.truncated(this.root, height);
+    this.truncated(this.root, height);
 
-    return new EllipsisResponse(false, this.outerhtml);
+    return new EllipsisResponse(false, this.outerHTML);
   }
 
   private truncated(element: Element, height: number) {
@@ -101,12 +107,14 @@ export class Ellipsis {
     const nodes = element.childNodes;
 
     const position = this.move(nodes, height, element);
+
     if (position >= 0) {
       const lastNode = nodes[position] as Element;
       return this.truncated(lastNode, height);
+    } else {
+      const lastNode = element.previousSibling as Element;
+      return this.truncated(lastNode, height);
     }
-
-    return position >= 0
   }
 
   protected text(node: Text, height: number) {
@@ -114,19 +122,28 @@ export class Ellipsis {
     if (!text) return false;
 
     let position = this.move(text, height, node);
-    this.range.setEnd(node, Math.max(position - 1, 0))
-    document.getElementById('ellipsis').appendChild(this.range.cloneContents())
 
-    const selection = window.getSelection();
-    selection.addRange(this.range);
+    if (position <= 0) {
+      const previousSibling = node.parentNode?.previousSibling;
+      if (previousSibling) {
+        this.range.setEndAfter(previousSibling);
+      } else {
+        this.range.setEndBefore(node);
+      }
+    } else {
+      this.range.setEnd(node, Math.max(position - 1, 0));
+    }
+
+    document.getElementById('ellipsis').appendChild(this.range.cloneContents())
     return position >= 0
   }
 
-  private move<T>(elements: ArrayLike<T>, height: number, node: Node | Text, deviation: number = 2) {
-    if (elements.length === 0) return -1;
+  private move<T>(elements: ArrayLike<T>, height: number, node: Node | Text, deviation: number = 0.03) {
+    if (elements.length === 0) return -1
 
     this.range.setEndAfter(node)
-    if (this.range.getBoundingClientRect().height <= height - deviation) return elements.length - 1;
+
+    if (this.range.getBoundingClientRect().bottom <= height - deviation) return elements.length - 1;
 
     let low = 0;
     let high = elements.length - 1;
@@ -135,9 +152,9 @@ export class Ellipsis {
       let middle = low + ((high - low) >> 1);
 
       this.range.setEnd(node, middle)
-      const h = this.range.getBoundingClientRect().height;
+      const b = this.range.getBoundingClientRect().bottom;
 
-      if (h <= height - deviation) {
+      if (b <= height - deviation) {
         low = middle + 1;
       } else {
         high = middle - 1
