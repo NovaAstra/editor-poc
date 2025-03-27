@@ -83,6 +83,7 @@ export class Ellipsis {
     const height = getMaxHeight(this.root, clampValue)
     if (getElemHeight(this.root) <= height) return new EllipsisResponse(false)
 
+    
     this.range.setStart(this.root, 0);
 
     this.truncated(this.root, height);
@@ -91,7 +92,7 @@ export class Ellipsis {
   }
 
   private truncated(element: Element, height: number) {
-    if (!element || element.nodeType === Node.COMMENT_NODE) return false;
+    // if (!element || element.nodeType === Node.COMMENT_NODE) return false;
 
     switch (element.nodeType) {
       case Node.TEXT_NODE:

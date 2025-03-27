@@ -32,11 +32,12 @@ export const getContentHeight = (element: Element) => {
 }
 
 export const getLineHeight = (element: Element) => {
-  let lh: any = computeStyle(element, "lineHeight");
+  const computedStyle = _global.getComputedStyle(element)
+  let lh: string = computedStyle["lineHeight"];
 
   return lh === "normal"
-    ? numericStyle(element, "fontSize") * DEFAULT_LINE_HEIGHT_MULTIPLIER
-    : parseFloat(lh)
+    ? numeric(computedStyle["fontSize"]) * DEFAULT_LINE_HEIGHT_MULTIPLIER
+    : numeric(lh)
 }
 
 export const getMaxLines = (element: Element, height?: number) => {
@@ -46,6 +47,5 @@ export const getMaxLines = (element: Element, height?: number) => {
   return Math.max(Math.floor(availHeight / lineHeight), 0)
 }
 
-export const getMaxHeight = (element: Element, clamp: number) => {
-  return Math.min(getLineHeight(element) * clamp, getContentHeight(element))
-}
+export const getMaxHeight = (element: Element, clamp: number) =>
+  Math.min(getLineHeight(element) * clamp, getContentHeight(element))
