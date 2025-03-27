@@ -53,12 +53,18 @@ export class Schedule<T = unknown> {
 
   public constructor() { }
 
+  public tryRun() { }
+
   public async flush() {
     this.deadline = Schedule.getTime() + this.threshold
     let task = this.queue.peek()
   }
 
   public static getTime: () => number;
+
+  private shouldYield() {
+    return Schedule.getTime() >= this.deadline
+  }
 }
 
 Schedule.getTime = getTime
