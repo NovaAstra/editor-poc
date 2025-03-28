@@ -116,7 +116,7 @@ export class Ellipsis {
     let position = this.move(text, bottom, node);
 
     if (position >= 0) {
-      this.range.setEnd(node, position + 1);
+      this.range.setEnd(node, position);
     } else {
       const previousSibling = node.parentNode?.previousSibling;
       if (previousSibling) {
