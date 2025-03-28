@@ -56,3 +56,7 @@ export const getMaxContentBottom = (element: Element) => {
     - numeric(computedStyle['borderBottomWidth'])
     - numeric(computedStyle['paddingBottom'])
 }
+
+export const isFixedHeight = (element: Element) => {
+ 
+}
