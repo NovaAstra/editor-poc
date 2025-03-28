@@ -1,4 +1,4 @@
-import { numeric, getMaxLines, getMaxHeight, getElemHeight, getContentBottom } from "./element"
+import { getMaxLines, getMaxHeight, getElemHeight, getMaxContentBottom } from "./element"
 import { _global } from "./global"
 
 export type Px = `${number}px`
@@ -53,11 +53,7 @@ export class Ellipsis {
 
   private readonly range: Range = document.createRange();
   private readonly options: EllipsisOptions
-
-  private get outerHTML(): string {
-    return this.root.outerHTML
-  }
-
+  private estimatedAvailableHeight: number = 0
 
   public constructor(
     public readonly root: Element,
@@ -81,10 +77,10 @@ export class Ellipsis {
 
     this.range.setStart(this.root, 0);
 
-    const bottom = getContentBottom(this.root)
+    const bottom = getMaxContentBottom(this.root)
     this.truncated(this.root, bottom);
 
-    return new EllipsisResponse(false, this.outerHTML);
+    return new EllipsisResponse(false, this.root.outerHTML);
   }
 
   private truncated(element: Element, bottom: number) {
@@ -104,43 +100,43 @@ export class Ellipsis {
     const nodes = element.childNodes;
 
     const position = this.move(nodes, bottom, element);
-
     if (position >= 0) {
       const lastNode = nodes[position] as Element;
       return this.truncated(lastNode, bottom);
-    } else {
-      const lastNode = element.previousSibling as Element;
-      return this.truncated(lastNode, bottom);
     }
+
+    const lastNode = element.previousSibling as Element;
+    return this.truncated(lastNode, bottom);
+
   }
 
   protected text(node: Text, bottom: number) {
     const text = node.nodeValue || '';
-    if (!text) return false;
 
     let position = this.move(text, bottom, node);
 
-    if (position <= 0) {
+    if (position >= 0) {
+      this.range.setEnd(node, 0);
+    } else {
       const previousSibling = node.parentNode?.previousSibling;
       if (previousSibling) {
         this.range.setEndAfter(previousSibling);
-      } else {
-        this.range.setEndBefore(node);
       }
-    } else {
-      this.range.setEnd(node, Math.max(position - 1, 0));
     }
 
     document.getElementById('ellipsis').appendChild(this.range.cloneContents())
     return position >= 0
   }
 
-  private move<T>(elements: ArrayLike<T>, bottom: number, node: Node | Text, deviation: number = 0.03) {
-    if (elements.length === 0) return -1
-
+  private move<T>(elements: ArrayLike<T>, bottom: number, node: Node, deviation: number = 0.03) {
     this.range.setEndAfter(node)
-    if (this.range.getBoundingClientRect().bottom <= bottom - deviation)
+
+    const b = this.range.getBoundingClientRect().bottom
+    if (b <= bottom - deviation)
       return elements.length - 1;
+
+    if (elements.length === 0)
+      return b > bottom - deviation ? -1 : 0;
 
     let low = 0;
     let high = elements.length - 1;
@@ -149,7 +145,6 @@ export class Ellipsis {
       let middle = low + ((high - low) >> 1);
 
       this.range.setEnd(node, middle)
-
       if (this.range.getBoundingClientRect().bottom <= bottom - deviation) {
         low = middle + 1;
       } else {

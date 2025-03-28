@@ -49,7 +49,7 @@ export const getMaxLines = (element: Element, height?: number) => {
 export const getMaxHeight = (element: Element, clamp: number) =>
   Math.min(getLineHeight(element) * clamp, getContentHeight(element))
 
-export const getContentBottom = (element: Element) => {
+export const getMaxContentBottom = (element: Element) => {
   const { bottom } = element.getBoundingClientRect()
   const computedStyle = _global.getComputedStyle(element)
   return bottom
