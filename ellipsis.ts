@@ -1,4 +1,4 @@
-import { getMaxLines, getMaxHeight, getElemHeight, getMaxContentBottom } from "./element"
+import { getMaxLines, getMaxHeight, getElemHeight, hasFixedHeight, getMaxContentBottom } from "./element"
 import { _global } from "./global"
 
 export type Px = `${number}px`
@@ -16,6 +16,8 @@ export interface Options {
 const DEFAULT_OPTIONS: Partial<Options> = {
   clamp: 'auto'
 }
+
+const DEVIATION: number = 0.03
 
 export class EllipsisOptions implements Options {
   public clamp: 'auto' | Line | Px;
@@ -38,11 +40,11 @@ export class EllipsisResponse {
 }
 
 export class Ellipsis {
-  public static ellipsis(root: Element, options: Partial<Options> = {}) {
+  public static ellipsis(root: HTMLElement, options: Partial<Options> = {}) {
     return new Ellipsis(root, options)
   }
 
-  public static getClampValue(element: Element, clamp: 'auto' | Line | Px) {
+  public static getClampValue(element: HTMLElement, clamp: 'auto' | Line | Px) {
     if (typeof clamp === 'number') return clamp;
 
     const isCSSValue = typeof clamp === 'string' && clamp.indexOf("px") > -1;
@@ -56,7 +58,7 @@ export class Ellipsis {
   private estimatedAvailableHeight: number = 0
 
   public constructor(
-    public readonly root: Element,
+    public readonly root: HTMLElement,
     options: Partial<Options> = {}
   ) {
     if (!this.root) {
@@ -83,7 +85,7 @@ export class Ellipsis {
     return new EllipsisResponse(false, this.root.outerHTML);
   }
 
-  private truncated(element: Element, bottom: number) {
+  private truncated(element: HTMLElement, bottom: number) {
     if (!element || element.nodeType === Node.COMMENT_NODE) return false;
 
     switch (element.nodeType) {
@@ -96,27 +98,32 @@ export class Ellipsis {
     }
   }
 
-  protected node(element: Element, bottom: number): boolean {
+  protected node(element: HTMLElement, bottom: number): boolean {
     const nodes = element.childNodes;
 
     const position = this.move(nodes, bottom, element);
     if (position >= 0) {
-      const lastNode = nodes[position] as Element;
+      const lastNode = nodes[position] as HTMLElement;
       return this.truncated(lastNode, bottom);
     }
 
-    const lastNode = element.previousSibling as Element;
+    const lastNode = element.previousSibling as HTMLElement;
     return this.truncated(lastNode, bottom);
-
   }
 
   protected text(node: Text, bottom: number) {
     const text = node.nodeValue || '';
 
     let position = this.move(text, bottom, node);
-
     if (position >= 0) {
-      this.range.setEnd(node, position);
+      const parentNode = node.parentNode as HTMLElement
+      if (hasFixedHeight(parentNode) && parentNode !== this.root) {
+        if (parentNode.getBoundingClientRect().bottom > bottom - DEVIATION) {
+          this.range.setEndAfter(parentNode.previousSibling);
+        }
+      } else {
+        this.range.setEnd(node, position >= text.length - 1 ? position + 1 : position);
+      }
     } else {
       const previousSibling = node.parentNode?.previousSibling;
       if (previousSibling) {
@@ -128,7 +135,7 @@ export class Ellipsis {
     return position >= 0
   }
 
-  private move<T>(elements: ArrayLike<T>, bottom: number, node: Node, deviation: number = 0.03) {
+  private move<T>(elements: ArrayLike<T>, bottom: number, node: Node, deviation: number = DEVIATION) {
     this.range.setEndAfter(node)
 
     const b = this.range.getBoundingClientRect().bottom
@@ -156,4 +163,4 @@ export class Ellipsis {
   }
 }
 
-export const ellipsis = (root: Element) => Ellipsis.ellipsis(root)
+export const ellipsis = (root: HTMLElement) => Ellipsis.ellipsis(root)

@@ -2,20 +2,20 @@ import { _global } from "./global"
 
 const DEFAULT_LINE_HEIGHT_MULTIPLIER = 1.2;
 
-export const getElemHeight = (element: Element) =>
+export const getElemHeight = (element: HTMLElement) =>
   Math.max(element.scrollHeight, element.clientHeight)
 
-export const computeStyle = (element: Element, prop: keyof CSSStyleDeclaration) =>
+export const computeStyle = (element: HTMLElement, prop: keyof CSSStyleDeclaration) =>
   _global.getComputedStyle(element)[prop] as string
 
-export const getFontSize = (element: Element) => numericStyle(element, "fontSize")
+export const getFontSize = (element: HTMLElement) => numericStyle(element, "fontSize")
 
 export const numeric = (input: unknown) => parseFloat(input as string) || 0
 
-export const numericStyle = (element: Element, prop: keyof CSSStyleDeclaration): number =>
+export const numericStyle = (element: HTMLElement, prop: keyof CSSStyleDeclaration): number =>
   numeric(computeStyle(element, prop))
 
-export const getContentHeight = (element: Element) => {
+export const getContentHeight = (element: HTMLElement) => {
   const computedStyle = _global.getComputedStyle(element)
   const boxSizing = computedStyle["boxSizing"];
 
@@ -30,7 +30,7 @@ export const getContentHeight = (element: Element) => {
   return numeric(computedStyle['height']) || element.clientHeight;
 }
 
-export const getLineHeight = (element: Element) => {
+export const getLineHeight = (element: HTMLElement) => {
   const computedStyle = _global.getComputedStyle(element)
   let lh: string = computedStyle["lineHeight"];
 
@@ -39,17 +39,25 @@ export const getLineHeight = (element: Element) => {
     : numeric(lh)
 }
 
-export const getMaxLines = (element: Element, height?: number) => {
+export const getMaxLines = (element: HTMLElement, height?: number) => {
   const availHeight = height || element.clientHeight
   const lineHeight = getLineHeight(element)
 
   return Math.max(Math.floor(availHeight / lineHeight), 0)
 }
 
-export const getMaxHeight = (element: Element, clamp: number) =>
+export const getMaxHeight = (element: HTMLElement, clamp: number) =>
   Math.min(getLineHeight(element) * clamp, getContentHeight(element))
 
-export const getMaxContentBottom = (element: Element) => {
+export const getFullHeight = (element: HTMLElement) => {
+  const computedStyle = _global.getComputedStyle(element);
+
+  return element.offsetHeight
+    + numeric(computedStyle['marginTop'])
+    + numeric(computedStyle['marginBottom'])
+}
+
+export const getMaxContentBottom = (element: HTMLElement) => {
   const { bottom } = element.getBoundingClientRect()
   const computedStyle = _global.getComputedStyle(element)
   return bottom
@@ -57,6 +65,16 @@ export const getMaxContentBottom = (element: Element) => {
     - numeric(computedStyle['paddingBottom'])
 }
 
-export const isFixedHeight = (element: Element) => {
- 
+export const hasFixedHeight = (element: HTMLElement) => {
+  const clone = element.cloneNode() as HTMLElement
+  clone.innerHTML = ''
+  clone.style.position = 'absolute';
+  clone.style.visibility = 'hidden';
+  clone.style.zIndex = "-99999";
+
+  document.body.appendChild(clone);
+
+  const height = getFullHeight(clone)
+  document.body.removeChild(clone)
+  return height !== 0
 }
