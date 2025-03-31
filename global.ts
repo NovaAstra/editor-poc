@@ -6,3 +6,5 @@ export const getGlobal = (): Window => {
 }
 
 export const _global = getGlobal()
+
+export const noop = () => { }
