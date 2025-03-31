@@ -1,19 +1,14 @@
 export abstract class Component {
-  protected abstract ["header.class"]: string;
-  protected abstract ["body.class"]: string;
-  protected abstract ["footer.class"]: string;
 
-  protected abstract ["row.class"]: string;
-  protected abstract ["row.cell.class"]: string;
 }
 
 export class Table extends Component {
-  protected readonly ["header.class"]: string = ".el-table__header-wrapper";
-  protected readonly ["body.class"]: string = ".el-table__body-wrapper";
-  protected readonly ["footer.class"]: string = ".el-table__footer-wrapper";
+  protected static readonly ["header.class"]: string = ".el-table__header-wrapper";
+  protected static readonly ["body.class"]: string = ".el-table__body-wrapper";
+  protected static readonly ["footer.class"]: string = ".el-table__footer-wrapper";
 
-  protected readonly ["row.class"]: string = ".el-table__row";
-  protected readonly ["row.cell.class"]: string = ".el-table__cell";
+  protected static readonly ["row.class"]: string = ".el-table__row";
+  protected static readonly ["row.cell.class"]: string = ".el-table__cell";
 }
 
 export class Grid {
@@ -37,23 +32,23 @@ export class DimessionTable extends Table {
 }
 
 export class Widget {
-  protected readonly ["class"]: string = ".vue-grid-layout .vue-grid-item";
+  protected static readonly ["class"]: string = ".vue-grid-layout .vue-grid-item";
 
-  protected readonly ["header.class"]: string = ".cardHeader";
-  protected readonly ["body.class"]: string = ".control-section";
-  protected readonly ["footer.class"]: string = ".widget__footer";
+  protected static readonly ["header.class"]: string = ".cardHeader";
+  protected static readonly ["body.class"]: string = ".control-section";
+  protected static readonly ["footer.class"]: string = ".widget__footer";
 
   public constructor(public readonly paper: Paper) { }
-
-  public html() {
-
-  }
 }
 
 export class Paper {
-  protected readonly ["class"]: string = ".dashboard-page.is-pdf .report-layout-views > div > .view-item";
+  protected static readonly ["class"]: string = ".dashboard-page.is-pdf .report-layout-views > div > .view-item";
+
+  public static html() {
+    
+  }
 }
 
 export class Papers {
-
+  public constructor(public readonly root: HTMLElement) { }
 }

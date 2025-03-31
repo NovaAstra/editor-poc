@@ -40,8 +40,7 @@ export class Schedule {
   private async flush() {
     this.deadline = getTime() + this.threshold
     let task = peek(this.queue);
-    let a
-    while (task && !(a=this.shouldYield())) {
+    while (task && !this.shouldYield()) {
       const { callback } = task
       task.callback = null
       const next = callback()
