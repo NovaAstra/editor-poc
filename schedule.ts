@@ -1,5 +1,3 @@
-import { isWindow } from "./is"
-
 export type TaskCallback = (() => TaskCallback) | null | undefined
 
 export interface Task {
@@ -11,6 +9,10 @@ const THRESHOLD: number = 5
 export const getTime = typeof performance !== "undefined"
   ? () => performance.now()
   : () => Date.now();
+
+export const peek = (queue: Task[]): Task | undefined => {
+  return queue[0]
+}
 
 export const microtask: (callback: () => void) => void =
   typeof queueMicrotask === "function"
@@ -37,8 +39,9 @@ export class Schedule {
 
   private async flush() {
     this.deadline = getTime() + this.threshold
-    let task = Schedule.peek(this.queue);
-    while (task && !this.shouldYield()) {
+    let task = peek(this.queue);
+    let a
+    while (task && !(a=this.shouldYield())) {
       const { callback } = task
       task.callback = null
       const next = callback()
@@ -47,25 +50,25 @@ export class Schedule {
       } else {
         this.queue.shift()
       }
-      task = Schedule.peek(this.queue)
+      task = peek(this.queue)
     }
     task && (this.translate = this.createTask(this.shouldYield())) && this.startTransition(this.flush.bind(this))
   }
 
   private createTask(pending: boolean) {
-    const cb = () => this.transitions.splice(0, 1).forEach((c) => c());
+    const callback = () => this.transitions.splice(0, 1).forEach((c) => c());
     return !pending
-      ? () => microtask(cb)
+      ? () => microtask(callback)
       : typeof MessageChannel !== "undefined"
-        ? () => new MessageChannel().port2.postMessage(null)
-        : () => setTimeout(cb);
+        ? () => {
+          const { port1, port2 } = new MessageChannel()
+          port1.onmessage = callback
+          port2.postMessage(null)
+        }
+        : () => setTimeout(callback);
   }
 
   private shouldYield() {
     return getTime() >= this.deadline
-  }
-
-  public static peek(queue: Task[]): Task | undefined {
-    return queue[0]
   }
 }

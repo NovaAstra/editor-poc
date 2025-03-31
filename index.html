@@ -14,82 +14,19 @@
       display: flex;
       gap: 5px;
       flex-shrink: 0;
-      width: 100000px;
+      flex-direction: column;
     }
 
-    .ellipsis,
-    .ellipsis2,
-    #ellipsis {
-      padding: 10px;
-      width: 300px;
-      height: 303px;
-      border: 1px solid red;
-      font-size: large;
-      box-sizing: content-box;
+    #button{
+      width: 100px;
     }
-   .demo {
-    /* height: 440px; */
-   }
   </style>
 
-  <div class="ellipsis">
-    <!-- <div class="demo">
-      Random text continues here: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
-      And even more: Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed
-      quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad
-      minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi
-      consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae
-      consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?
-    </div> -->
-    <!-- 2131
-    <p style="background-color: red;">
-      Random text continues here: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
-      incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
-      nisi ut uuuuu ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
-      dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
-      deserunt mollit anim id est laborum.
-    </p> -->
+  <button id="button">创建元素</button>
 
-    <p style="height:200px;width:200px;background-color: red;">Here are some random facts:</p>
-    <img class="fit-picture" src="https://oss.mspbots.ai/data-teams/users/photo/f380a2ed-3dd5-4d9a-9c65-deb297d5b238.jpg"
-      alt="Grapefruit slice atop a pile of other slices" />
-    <h1>Random HTML Content</h1>
-
-    <p>This is a randomly generated HTML
-      styles to showcase how it can be used in a web page.</p>
-
-    <ul>
-      <li>The <span class="highlight">Eiffel Tower</span> is in Paris.</li>
-      <li>The <span class="highlight">Great Wall of China</span> is over 13,000 miles long.</li>
-      <li>The <span class="highlight">Amazon River</span> is the largest river by discharge volume.</li>
-      <li>The <span class="highlight">Mona Lisa</span> was painted by Leonardo da Vinci.</li>
-      <li>The <span class="highlight">Great Barrier Reef</span> is the largest coral reef system in the world.</li>
-    </ul>
-    <p>Random text continues here: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor
-      incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris
-      nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum
-      dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia
-      deserunt mollit anim id est laborum.</p>
-    <p>More random text: Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque
-      laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta
-      sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur
-      magni dolores eos qui ratione voluptatem sequi nesciunt.</p>
-    <p>And even more: Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit, sed
-      quia non numquam eius modi tempora incidunt ut labore et dolore magnam aliquam quaerat voluptatem. Ut enim ad
-      minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi
-      consequatur? Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae
-      consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur?</p>
-  </div>
-
-
-  <div id="ellipsis">
-
-  </div>
-
-
+  <div id="content"></div>
 
   <script type="module" src="index.ts"></script>
-
 </body>
 
 </html>
