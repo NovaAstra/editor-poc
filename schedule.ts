@@ -55,16 +55,18 @@ export class Schedule {
   }
 
   private createTask(pending: boolean) {
-    const callback = () => this.transitions.splice(0, 1).forEach((c) => c());
-    return !pending
-      ? () => microtask(callback)
-      : typeof MessageChannel !== "undefined"
-        ? () => {
-          const { port1, port2 } = new MessageChannel()
-          port1.onmessage = callback
-          port2.postMessage(null)
-        }
-        : () => setTimeout(callback);
+    const callback = () => this.transitions.shift()?.();
+
+    if (!pending)
+      return () => microtask(callback);
+
+    if (typeof MessageChannel !== "undefined") {
+      const { port1, port2 } = new MessageChannel();
+      port1.onmessage = callback;
+      return () => port2.postMessage(null);
+    }
+
+    return () => setTimeout(callback);
   }
 
   private shouldYield() {

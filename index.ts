@@ -31,5 +31,5 @@ function createElements(total: number, batchSize = 100) {
 }
 
 button.addEventListener('click', () => {
-  createElements(500000);
+  createElements(200000);
 });

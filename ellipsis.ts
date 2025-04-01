@@ -55,7 +55,6 @@ export class Ellipsis {
 
   private readonly range: Range = document.createRange();
   private readonly options: EllipsisOptions
-  private estimatedAvailableHeight: number = 0
 
   public constructor(
     public readonly root: HTMLElement,

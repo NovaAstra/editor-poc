@@ -78,3 +78,5 @@ export const hasFixedHeight = (element: HTMLElement) => {
   document.body.removeChild(clone)
   return height !== 0
 }
+
+export const getElemRect = (element: HTMLElement) => element.getBoundingClientRect()
