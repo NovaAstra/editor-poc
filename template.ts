@@ -27,19 +27,19 @@ export class Paper {
 }
 
 export class Papers {
-  public compose() {
-
-  }
+  public constructor(public readonly root: HTMLElement) { }
 }
 
 export class Render {
   public readonly root: HTMLElement
+  private readonly papers: Papers;
 
   public constructor(root: HTMLElement) {
     if (!root)
       throw new Error('There is no content to print. Please check the current page of the report.')
 
     this.root = root;
+    this.papers = new Papers(root)
   }
 
   public compose() { }
