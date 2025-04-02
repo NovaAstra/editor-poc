@@ -12,7 +12,7 @@ export enum ComponentTypeEnum {
 
 export const scheduler = new Schedule()
 
-export const doubleEnded = <T>(
+export const sequential = <T>(
   elements: ArrayLike<T>,
   scheduler: Schedule,
   callback: (item: T, index: number) => void,
@@ -28,12 +28,6 @@ export const doubleEnded = <T>(
         callback(elements[start], start);
         start++;
         processed++;
-
-        if (start <= end && processed < batchSize) {
-          callback(elements[end], end);
-          end--;
-          processed++;
-        }
       }
 
       if (start <= end) {
@@ -117,11 +111,15 @@ export class Grid extends Component {
 
   private async getRows() {
     const elements = this.$body.$el.querySelectorAll(Grid["row.class"])
-    await doubleEnded(
+    await sequential(
       elements,
       scheduler,
       (element, index) => {
-        this.$rows[index] = getElemRect(element as HTMLElement);
+        let rect = getElemRect(element as HTMLElement);
+        if (index > 0) {
+          rect.offset = rect.height + this.$rows[index - 1].offset
+        }
+        this.$rows[index] = rect;
       }
     );
   }
@@ -161,13 +159,21 @@ export class Table extends Component {
     await this.getRows()
   }
 
+  public async create() {
+
+  }
+
   private async getRows() {
     const elements = this.$body.$el.querySelectorAll(Table["row.class"])
-    await doubleEnded(
+    await sequential(
       elements,
       scheduler,
       (element, index) => {
-        this.$rows[index] = getElemRect(element as HTMLElement);
+        let rect = getElemRect(element as HTMLElement);
+        if (index > 0) {
+          rect.offset = rect.height + this.$rows[index - 1].offset
+        }
+        this.$rows[index] = rect;
       }
     );
   }
@@ -199,8 +205,19 @@ export class Widget {
 
   public component: Component
 
+  public x: number = 0;
+  public y: number = 0;
+  public w: number = 0;
+  public h: number = 0;
+
   public constructor(public readonly paper: Paper, public readonly $el: HTMLElement) {
     this.rect = getElemRect($el)
+
+    const [x, y] = paper.offsets
+    this.x = this.rect.x - x
+    this.y = this.rect.y - y
+    this.w = this.rect.width
+    this.h = this.rect.height
   }
 
   public async compose() {
@@ -208,6 +225,10 @@ export class Widget {
     const ComponentClass = Widget.COMPONENT_MAP.get(component) || Common;
     this.component = new ComponentClass(this, this.$el);
     await this.component.compose()
+  }
+
+  public async create() {
+
   }
 }
 
@@ -218,11 +239,14 @@ export class Paper {
 
   public readonly rect: ElementRect;
 
-  public readonly offset: number = 0;
+  public readonly offsets: [number, number] = [0, 0]
+
+  public readonly viewport: [number, number] = [0, 0]
 
   public constructor(public readonly $el: HTMLElement) {
     this.rect = getElemRect($el)
-    this.offset = this.rect.y || 0
+    this.offsets = [this.rect.x, this.rect.y]
+    this.viewport = [this.rect.width, this.rect.height]
   }
 
   public async compose() {

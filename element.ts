@@ -4,6 +4,7 @@ const DEFAULT_LINE_HEIGHT_MULTIPLIER = 1.2;
 
 export interface ElementRect extends DOMRect {
   $el: HTMLElement;
+  offset: number;
 }
 
 export const getElemHeight = (element: HTMLElement) =>
@@ -84,9 +85,10 @@ export const hasFixedHeight = (element: HTMLElement) => {
 }
 
 export const getElemRect = (element: HTMLElement) => {
-  if(element){
+  if (element) {
     let rect = element.getBoundingClientRect() as ElementRect
     rect.$el = element
+    rect.offset = 0
     return rect
   }
 }
