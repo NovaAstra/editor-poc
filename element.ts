@@ -2,6 +2,10 @@ import { _global } from "./global"
 
 const DEFAULT_LINE_HEIGHT_MULTIPLIER = 1.2;
 
+export interface ElementRect extends DOMRect {
+  $el: HTMLElement;
+}
+
 export const getElemHeight = (element: HTMLElement) =>
   Math.max(element.scrollHeight, element.clientHeight)
 
@@ -79,4 +83,10 @@ export const hasFixedHeight = (element: HTMLElement) => {
   return height !== 0
 }
 
-export const getElemRect = (element: HTMLElement) => element.getBoundingClientRect()
+export const getElemRect = (element: HTMLElement) => {
+  if(element){
+    let rect = element.getBoundingClientRect() as ElementRect
+    rect.$el = element
+    return rect
+  }
+}

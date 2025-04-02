@@ -66,7 +66,7 @@ export class Schedule {
       return () => port2.postMessage(null);
     }
 
-    return () => setTimeout(callback);
+    return () => setTimeout(callback, 0);
   }
 
   private shouldYield() {
