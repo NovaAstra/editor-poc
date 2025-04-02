@@ -18,6 +18,10 @@ export class Widget {
   protected static readonly ["template.class"]: string = '.gridnew_gadget_tempalte'
 
   public constructor(public readonly paper: Paper, public readonly element: HTMLElement) { }
+
+  public html() {
+
+  }
 }
 
 export class Paper {
