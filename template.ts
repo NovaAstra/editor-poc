@@ -23,11 +23,31 @@ export class Widget {
 export class Paper {
   protected static readonly ["class"]: string = ".dashboard-page.is-pdf .report-layout-views > div > .view-item";
 
+  public readonly widgets: Widget[] = [];
+
   public constructor(public readonly element: HTMLElement) { }
+
+  public compose() {
+    const elements = this.element.querySelectorAll(Paper["class"])
+    elements.forEach(element => {
+      this.widgets.push(new Widget(this, element as HTMLElement));
+    });
+  }
 }
 
 export class Papers {
-  public constructor(public readonly root: HTMLElement) { }
+  public readonly papers: Paper[] = [];
+
+  public constructor(public readonly root: HTMLElement) {
+    this.compose()
+  }
+
+  public compose() {
+    const elements = this.root.querySelectorAll(Paper["class"])
+    elements.forEach(element => {
+      this.papers.push(new Paper(element as HTMLElement));
+    });
+  }
 }
 
 export class Render {
