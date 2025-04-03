@@ -4,7 +4,7 @@ export interface Task {
   callback?: TaskCallback
 }
 
-const THRESHOLD: number = 5
+const THRESHOLD: number = 10
 
 export const getTime = typeof performance !== "undefined"
   ? () => performance.now()

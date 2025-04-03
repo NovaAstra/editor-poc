@@ -16,7 +16,7 @@ export const sequential = <T>(
   elements: ArrayLike<T>,
   scheduler: Schedule,
   callback: (item: T, index: number) => void,
-  batchSize: number = 10
+  batchSize: number = 5
 ) => {
   let start = 0;
   let end = elements.length - 1;
@@ -64,9 +64,13 @@ export const getComponentType = (element: HTMLElement): ComponentTypeEnum => {
 }
 
 export abstract class Component {
+  public abstract type: ComponentTypeEnum
+
   public constructor(public readonly widget: Widget, public readonly $el: HTMLElement) { }
 
   public abstract compose(): void;
+
+  public offset: number = 0;
 }
 
 export class Common extends Component {
@@ -107,6 +111,10 @@ export class Grid extends Component {
     this.$footer = getElemRect(this.table.$el.querySelector(Grid["footer.class"]))
 
     await this.getRows()
+
+    if (this.$rows.length) {
+      this.offset = this.$rows[this.$rows.length - 1].offset - this.$body.height
+    }
   }
 
   private async getRows() {
@@ -157,10 +165,10 @@ export class Table extends Component {
     this.$footer = getElemRect(this.rect.$el.querySelector(Table["footer.class"]))
 
     await this.getRows()
-  }
 
-  public async create() {
-
+    if (this.$rows.length) {
+      this.offset = this.$rows[this.$rows.length - 1].offset - this.$body.height
+    }
   }
 
   private async getRows() {
@@ -170,13 +178,15 @@ export class Table extends Component {
       scheduler,
       (element, index) => {
         let rect = getElemRect(element as HTMLElement);
+        rect.offset = rect.height
         if (index > 0) {
-          rect.offset = rect.height + this.$rows[index - 1].offset
+          rect.offset += this.$rows[index - 1].offset
         }
         this.$rows[index] = rect;
       }
     );
   }
+
 }
 
 export class List extends Table {
@@ -227,9 +237,7 @@ export class Widget {
     await this.component.compose()
   }
 
-  public async create() {
-
-  }
+  public async clone() { }
 }
 
 export class Paper {
@@ -237,10 +245,15 @@ export class Paper {
 
   public widgets: Widget[] = [];
 
+  public page: number = 0;
+
+  public offset: number = 0;
+
+  public height: number = 0;
+
   public readonly rect: ElementRect;
 
   public readonly offsets: [number, number] = [0, 0]
-
   public readonly viewport: [number, number] = [0, 0]
 
   public constructor(public readonly $el: HTMLElement) {
@@ -284,23 +297,13 @@ export class Render {
       await paper.compose();
       this.papers.push(paper);
     }
-
-    console.log(this)
   }
-
-  public analysis() { }
-
-  public create() { }
 }
 
 export const draw = async (root: HTMLElement) => {
   const render = new Render(root)
 
   await render.compose()
-
-  await render.create()
-
-  await render.analysis()
 
   return true;
 }
